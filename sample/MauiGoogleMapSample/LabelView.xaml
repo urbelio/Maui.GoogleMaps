@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiGoogleMapSample.LabelView"
+             AnchorX="0.5"
+             AnchorY="1"
+             WidthRequest="120"
+             x:Name="Container">
+    <VerticalStackLayout>
+        <Border Stroke="#D0376E"
+                StrokeThickness="2"
+                BackgroundColor="White"
+                Padding="5">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="5"/>
+            </Border.StrokeShape>
+            <Label x:Name="LabelContainer"
+                   FontSize="12"
+                   BackgroundColor="White"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"/>
+        </Border>
+        <Image Source="win_site_logo_pink"
+               Aspect="AspectFit"
+               HeightRequest="50"
+               WidthRequest="50"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="0,5,0,0"/>
+    </VerticalStackLayout>
+</ContentView>
+

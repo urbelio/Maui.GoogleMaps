@@ -1,14 +1,13 @@
-﻿
-namespace Maui.GoogleMaps
+﻿namespace Maui.GoogleMaps
 {
-    public sealed class PinClickedEventArgs : EventArgs
+    public sealed class ClusterClickedEventArgs : EventArgs
     {
         public bool Handled { get; set; } = false;
-        public Pin Pin { get; }
+        public ClusterPin Cluster { get; }
 
-        internal PinClickedEventArgs(Pin pin)
+        internal ClusterClickedEventArgs(ClusterPin cluster)
         {
-            this.Pin = pin;
+            this.Cluster = cluster;
         }
     }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui" 
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
@@ -31,7 +31,17 @@
             </Grid.RowDefinitions>
             <map:Map ItemsSource="{Binding Places}"
                      ItemTemplateSelector="{StaticResource MapItemTemplateSelector}"
+                     ClusteringEnabled="True"
                      x:Name="_map">
+                <map:Map.ClusterView>
+                    <cv:ClusterView/>
+                </map:Map.ClusterView>
+                <map:Map.NoClusterView>
+                    <cv:NoClusterView/>
+                </map:Map.NoClusterView>
+                <map:Map.LabelizedView>
+                    <cv:LabelView/>
+                </map:Map.LabelizedView>
             </map:Map>
             <StackLayout Orientation="Horizontal"
                          Grid.Row="1">

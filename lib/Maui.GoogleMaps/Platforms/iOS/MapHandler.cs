@@ -6,6 +6,10 @@ using Maui.GoogleMaps.iOS;
 using Maui.GoogleMaps.Logics.iOS;
 using Maui.GoogleMaps.Logics;
 using Maui.GoogleMaps.iOS.Extensions;
+using Google.Maps.Utils;
+using Maui.GoogleMaps.Platforms.iOS.Algorithm;
+using Maui.GoogleMaps.Platforms.iOS.Renderers;
+using Maui.GoogleMaps.Platforms.iOS.Logics;
 
 namespace Maui.GoogleMaps.Handlers
 {
@@ -24,6 +28,8 @@ namespace Maui.GoogleMaps.Handlers
         CameraLogic _cameraLogic;
 
         private bool _ready;
+
+        public ClusterManager clusterManager;
 
         internal IList<BaseLogic<MapView>> Logics { get; set; }
 
@@ -46,15 +52,38 @@ namespace Maui.GoogleMaps.Handlers
 
         protected override void ConnectHandler(MapView platformView)
         {
-            Logics = new List<BaseLogic<MapView>>
+            if (VirtualView.ClusteringEnabled)
             {
-                new PolylineLogic(),
-                new PolygonLogic(),
-                new CircleLogic(),
-                new PinLogic(Config.GetImageFactory(), OnMarkerCreating, OnMarkerCreated, OnMarkerDeleting, OnMarkerDeleted),
-                new TileLayerLogic(),
-                new GroundOverlayLogic(Config.GetImageFactory())
-            };
+                var h = DeviceDisplay.Current.MainDisplayInfo.Height;
+                var w = DeviceDisplay.Current.MainDisplayInfo.Width;
+                var d = DeviceDisplay.Current.MainDisplayInfo.Density;
+
+                int widthDp = (int)(w / d);
+                int heightDp = (int)(h / d);
+
+                var iconGenerator = new ClusterMarkerIconGenerator(Config.GetImageFactory(), Map.NoClusterView, Map.ClusterView, this);
+                //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
+                var algorithm = new ViewBasedClusterAlgorithm(widthDp, heightDp, true, this);
+                var renderer = new ClusterMarkerRenderer(this, Config.GetImageFactory(), NativeMap, iconGenerator);
+                clusterManager = new ClusterManager(NativeMap, algorithm: algorithm, renderer: renderer);
+
+                clusterManager.SetMapDelegate(NativeMap.Delegate);
+            }
+
+            Logics = VirtualView.ClusteringEnabled ?
+                new List<BaseLogic<MapView>> {
+                    new ClusterLogic(Config.GetImageFactory())
+                }
+                :
+                new List<BaseLogic<MapView>>
+                {
+                    new PolylineLogic(),
+                    new PolygonLogic(),
+                    new CircleLogic(),
+                    new PinLogic(Config.GetImageFactory(), OnMarkerCreating, OnMarkerCreated, OnMarkerDeleting, OnMarkerDeleted),
+                    new TileLayerLogic(),
+                    new GroundOverlayLogic(Config.GetImageFactory())
+                };
 
             _cameraLogic = new CameraLogic(() =>
             {
@@ -138,6 +167,37 @@ namespace Maui.GoogleMaps.Handlers
         public static void MapMyLocationEnabled(MapHandler handler, Map map)
         {
             handler.NativeMap.MyLocationEnabled = map.MyLocationEnabled;
+        }
+
+        public static void MapClusteringEnabled(MapHandler handler, Map map)
+        {
+            if (handler.NativeMap != null)
+            {
+                if (map.ClusteringEnabled)
+                {
+                    var logic = new ClusterLogic(Config.GetImageFactory());
+                    handler.Logics.Add(logic);
+                    logic.Register(null, null, handler.NativeMap, handler.Map, handler);
+                    logic.RestoreItems();
+                    logic.OnMapPropertyChanged(Map.SelectedPinProperty.PropertyName);
+
+                    var h = DeviceDisplay.Current.MainDisplayInfo.Height;
+                    var w = DeviceDisplay.Current.MainDisplayInfo.Width;
+                    var d = DeviceDisplay.Current.MainDisplayInfo.Density;
+
+                    int widthDp = (int)(w / d);
+                    int heightDp = (int)(h / d);
+
+                    var iconGenerator = new ClusterMarkerIconGenerator(Config.GetImageFactory(), handler.Map.NoClusterView, handler.Map.ClusterView, handler);
+                    //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
+                    var algorithm = new ViewBasedClusterAlgorithm(widthDp, heightDp, true, handler);
+                    var renderer = new ClusterMarkerRenderer(handler, Config.GetImageFactory(), handler.NativeMap, iconGenerator);
+                    handler.clusterManager = new ClusterManager(handler.NativeMap, algorithm: algorithm, renderer: renderer);
+
+                    handler.clusterManager.SetMapDelegate(handler.NativeMap.Delegate);
+                    //logic.ClusterItems();
+                }
+            }
         }
 
         public static void MapMapStyle(MapHandler handler, Map map)

@@ -1,5 +1,4 @@
-﻿
-namespace Maui.GoogleMaps
+﻿namespace Maui.GoogleMaps
 {
     public sealed class SelectedPinChangedEventArgs : EventArgs
     {

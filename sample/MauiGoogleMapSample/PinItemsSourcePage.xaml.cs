@@ -15,7 +15,7 @@ namespace MauiGoogleMapSample
         public PinItemsSourcePage()
         {
             InitializeComponent();
-
+            
             BindingContext = new ViewModel();
             _map.InitialCameraUpdate = CameraUpdateFactory.NewPositionZoom(startPosition, 3);
         }
@@ -24,7 +24,7 @@ namespace MauiGoogleMapSample
     {
         int _pinCreatedCount = 0;
 
-        readonly ObservableCollection<Place> _places;
+        readonly ObservableCollection<ClusterPin> _places;
 
         public IEnumerable Places => _places;
 
@@ -36,11 +36,38 @@ namespace MauiGoogleMapSample
 
         public ViewModel()
         {
-            _places = new ObservableCollection<Place>() {
-                    new Place("New York, USA", "The City That Never Sleeps", new Position(40.67, -73.94), 1),
-                    new Place("Los Angeles, USA", "City of Angels", new Position(34.11, -118.41), 2),
-                    new Place("San Francisco, USA", "Bay City ", new Position(37.77, -122.45), 3)
-                };
+            Position startPos = new Position(41.9027835, 12.4963655);
+
+            double fromLong = -0.5;
+            double toLong = 0.5;
+            double increaseBy = 0.025;
+            double fromLat = -0.5;
+            double toLat = 0.5;
+            double increaseByLat = 0.025;
+
+            int count = 0;
+            var list = new ObservableCollection<ClusterPin>();
+            for (double lon = fromLong; lon <= toLong; lon += increaseBy)
+            {
+                for (double lat = fromLat; lat <= toLat; lat += increaseByLat)
+                {
+                    var pin = new ClusterPin {
+                        Position = new Position(startPos.Latitude + lat, startPos.Longitude + lon),
+                        Title = count.ToString(),
+                        Snippet = count.ToString()
+                    };
+
+                    list.Add(pin);
+
+                    ++count;
+                }
+            }
+            _places = list;
+            //_places = new ObservableCollection<Place>() {
+            //        new Place("New York, USA", "The City That Never Sleeps", new Position(40.67, -73.94), 1),
+            //        new Place("Los Angeles, USA", "City of Angels", new Position(34.11, -118.41), 2),
+            //        new Place("San Francisco, USA", "Bay City ", new Position(37.77, -122.45), 3)
+            //    };
 
             AddPlaceCommand = new Command(AddPlace);
             RemovePlaceCommand = new Command(RemovePlace);
@@ -107,16 +134,15 @@ namespace MauiGoogleMapSample
             }
         }
 
-        Place NewPlace()
+        ClusterPin NewPlace()
         {
             var rand = new Random(Environment.TickCount);
             ++_pinCreatedCount;
 
-            return new Place(
-                $"Pin {_pinCreatedCount}",
-                $"Desc {_pinCreatedCount}",
-                RandomPosition.Next(PinItemsSourcePage.startPosition, 8, 19),
-                rand.Next(0, 4));
+            return new ClusterPin {
+                Title = $"Pin {_pinCreatedCount}",
+                Snippet = $"Desc {_pinCreatedCount}",
+                Position = RandomPosition.Next(PinItemsSourcePage.startPosition, 8, 19)};
         }
     }
 

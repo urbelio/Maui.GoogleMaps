@@ -2,13 +2,17 @@
 using Android.Gms.Maps.Model;
 using Android.Graphics;
 using Android.OS;
+using Com.Google.Maps.Android.Clustering;
+using Java.Util.Logging;
 using Maui.GoogleMaps.Android;
 using Maui.GoogleMaps.Android.Callbacks;
 using Maui.GoogleMaps.Android.Extensions;
 using Maui.GoogleMaps.Internals;
 using Maui.GoogleMaps.Logics;
 using Maui.GoogleMaps.Logics.Android;
+using Maui.GoogleMaps.Platforms.Android.Algorithm;
 using Maui.GoogleMaps.Platforms.Android.Listeners;
+using Maui.GoogleMaps.Platforms.Android.Renderers;
 using Math = System.Math;
 
 namespace Maui.GoogleMaps.Handlers;
@@ -42,6 +46,8 @@ public partial class MapHandler
 
     bool _disposed;
 
+    public ClusterManager clusterManager;
+
     public override void PlatformArrange(Microsoft.Maui.Graphics.Rect frame)
     {
         base.PlatformArrange(frame);
@@ -71,7 +77,10 @@ public partial class MapHandler
     {
         _cameraLogic = new CameraLogic(UpdateVisibleRegion);
 
-        Logics = new List<BaseLogic<GoogleMap>>
+        Logics = VirtualView.ClusteringEnabled ?  new List<BaseLogic<GoogleMap>>
+        {
+            new ClusterLogic(Config.GetBitmapdescriptionFactory())
+        }: new List<BaseLogic<GoogleMap>>
         {
             new PolylineLogic(),
             new PolygonLogic(),
@@ -101,64 +110,74 @@ public partial class MapHandler
             logic.ScaledDensity = ScaledDensity;
         }
 
-        OnMapReady();
+        if (VirtualView.ClusteringEnabled)
+        {
+            //foreach(var l in handler.Logics)
+            //{
+            //    l.Unregister(handler.NativeMap, map);
+            //}
+            //var logic = new ClusterLogic(Config.GetBitmapdescriptionFactory());
+            //handler.Logics.Add(logic);
+            //logic.Register(null, null, handler.NativeMap, handler.Map, handler);
+            //logic.ScaledDensity = handler.ScaledDensity;
 
+            var h = DeviceDisplay.Current.MainDisplayInfo.Height;
+            var w = DeviceDisplay.Current.MainDisplayInfo.Width;
+            var d = DeviceDisplay.Current.MainDisplayInfo.Density;
+
+            int widthDp = (int)(w / d);
+            int heightDp = (int)(h / d);
+            clusterManager = new ClusterManager(Context, NativeMap);
+            clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(widthDp, heightDp));
+            clusterManager.Renderer = new ClusterMarkerRenderer(Map.LabelizedView, Map.NoClusterView, Map.ClusterView, Context, this, Config.GetBitmapdescriptionFactory(), NativeMap, clusterManager);
+            
+        }
+        OnMapReady();
         base.ConnectHandler(platformView);
     }
-
     protected override void DisconnectHandler(MapView platformView)
     {
         if (!_disposed)
         {
             _disposed = true;
             Uninitialize(NativeMap, Map);
-
             if (NativeMap != null)
             {
                 NativeMap.Dispose();
                 NativeMap = null;
             }
-
             platformView?.OnDestroy();
         }
-
         base.DisconnectHandler(platformView);
     }
-
     protected virtual void OnMapReady()
     {
         var nativeMap = NativeMap;
-
         if (nativeMap != null)
         {
             _cameraLogic.Register(Map, nativeMap);
-
             _uiSettingsLogic.Register(Map, nativeMap);
             Map.OnSnapshot += OnSnapshot;
-
             Map.OnFromScreenLocation = point =>
             {
                 var latLng = nativeMap.Projection.FromScreenLocation(new global::Android.Graphics.Point((int)point.X, (int)point.Y));
                 return latLng.ToPosition();
             };
-
             Map.OnToScreenLocation = position =>
             {
                 var pt = nativeMap.Projection.ToScreenLocation(position.ToLatLng());
                 return new Microsoft.Maui.Graphics.Point(pt.X, pt.Y);
             };
-
             onMapClickListener.MapHandler = this;
             onMapLongClickListener.MapHandler = this;
             onMyLocationButtonClickListener.MapHandler = this;
-
             nativeMap.SetOnMapClickListener(onMapClickListener);
             nativeMap.SetOnMapLongClickListener(onMapLongClickListener);
             nativeMap.SetOnMyLocationButtonClickListener(onMyLocationButtonClickListener);
-
             _uiSettingsLogic.Initialize();
 
             MapMapper.UpdateProperties(this, VirtualView);
+            NativeMap.SetOnCameraIdleListener(clusterManager);
         }
 
         _ready = true;
@@ -244,6 +263,35 @@ public partial class MapHandler
             handler.NativeMap.MyLocationEnabled = map.MyLocationEnabled;
         }
     }
+
+    public static void MapClusteringEnabled(MapHandler handler, Map map)
+    {
+        if (handler.NativeMap != null)
+        {
+            if (map.ClusteringEnabled)
+            {
+                //foreach(var l in handler.Logics)
+                //{
+                //    l.Unregister(handler.NativeMap, map);
+                //}
+                //var logic = new ClusterLogic(Config.GetBitmapdescriptionFactory());
+                //handler.Logics.Add(logic);
+                //logic.Register(null, null, handler.NativeMap, handler.Map, handler);
+                //logic.ScaledDensity = handler.ScaledDensity;
+
+                var h = DeviceDisplay.Current.MainDisplayInfo.Height;
+                var w = DeviceDisplay.Current.MainDisplayInfo.Width;
+                var d = DeviceDisplay.Current.MainDisplayInfo.Density;
+
+                int widthDp = (int)(w / d);
+                int heightDp = (int)(h / d);
+                handler.clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(widthDp, heightDp));
+                handler.clusterManager.Renderer = new ClusterMarkerRenderer(handler.Map.LabelizedView, handler.Map.NoClusterView, handler.Map.ClusterView, handler.Context, handler, Config.GetBitmapdescriptionFactory(), handler.NativeMap, handler.clusterManager);
+                handler.NativeMap.SetOnCameraIdleListener(handler.clusterManager);
+            }
+        }
+    }
+
     public static void MapMapStyle(MapHandler handler, Map map)
     {
         handler.NativeMap?.SetMapStyle(map.MapStyle != null ?
@@ -371,5 +419,9 @@ public partial class MapHandler
         );
 #pragma warning restore 618
         VirtualView.Region = projection.VisibleRegion.ToRegion();
+        //if (VirtualView.ClusteringEnabled)
+        //{
+        //    clusterManager.Cluster();
+        //}
     }
 }
