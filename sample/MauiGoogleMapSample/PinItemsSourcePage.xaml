@@ -5,12 +5,12 @@
     xmlns:map="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
     xmlns:cv="clr-namespace:MauiGoogleMapSample"
     x:Class="MauiGoogleMapSample.PinItemsSourcePage"
-    Title="Pin with ItemsSource">
+    Title="Google Clustering">
     
     <ContentPage.Resources>
         <ResourceDictionary>
             <cv:IconConverter x:Key="iconConverter" />
-            <cv:MapItemTemplateSelector x:Key="MapItemTemplateSelector">
+            <!--<cv:MapItemTemplateSelector x:Key="MapItemTemplateSelector">
                 <cv:MapItemTemplateSelector.DataTemplate>
                     <DataTemplate>
                         <map:Pin Position="{Binding Position}"
@@ -19,7 +19,7 @@
                                  Icon="{Binding IconNumber, Converter={StaticResource iconConverter}}"/>
                     </DataTemplate>
                 </cv:MapItemTemplateSelector.DataTemplate>
-            </cv:MapItemTemplateSelector>
+            </cv:MapItemTemplateSelector>-->
         </ResourceDictionary>
     </ContentPage.Resources>
     
@@ -30,7 +30,6 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <map:Map ItemsSource="{Binding Places}"
-                     ItemTemplateSelector="{StaticResource MapItemTemplateSelector}"
                      ClusteringEnabled="True"
                      x:Name="_map">
                 <map:Map.ClusterView>
@@ -43,7 +42,7 @@
                     <cv:LabelView/>
                 </map:Map.LabelizedView>
             </map:Map>
-            <StackLayout Orientation="Horizontal"
+            <!--<StackLayout Orientation="Horizontal"
                          Grid.Row="1">
                 <Button Text="Add"
                         Command="{Binding AddPlaceCommand}" />
@@ -55,7 +54,7 @@
                         Command="{Binding UpdatePlacesCommand}" />
                 <Button Text="Replace"
                         Command="{Binding ReplacePlaceCommand}" />
-            </StackLayout>
+            </StackLayout>-->
         </Grid>
     </ContentPage.Content>
 </ContentPage>

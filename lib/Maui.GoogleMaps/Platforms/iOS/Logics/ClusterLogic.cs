@@ -27,34 +27,17 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
             base.Unregister(nativeMap, map);
         }
 
-        protected override IList<ClusterPin> GetItems(Map map)
-        {
-            var list = new List<ClusterPin>();
-            foreach (var item in map.ItemsSource)
-            {
-                var cp = (ClusterPin)item;
-                list.Add(cp);
-            }
-            return list;
-        }
+        protected override IList<ClusterPin> GetItems(Map map) => map.Clusters;
 
         protected override void AddItems(IList newItems)
         {
-            foreach (ClusterPin p in newItems)
-            {
-                CheckCanCreateNativeItem(p);
-                p.PropertyChanged += OnItemPropertyChanged;
-                var nat = CreateNativeItem(p);
-            }
+            base.AddItems(newItems);
             ((MapHandler)Map.Handler).clusterManager?.Cluster();
         }
 
         protected override void RemoveItems(IList oldItems)
         {
-            foreach (ClusterPin p in oldItems)
-            {
-                DeleteNativeItem(p);
-            }
+            base.RemoveItems(oldItems);
             ((MapHandler)Map.Handler).clusterManager?.Cluster();
         }
 
@@ -68,6 +51,7 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
             //catch { }
             var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
             ((MapHandler)Map.Handler).clusterManager?.AddItem(point);
+            outerItem.NativeObject = point;
             return point;
         }
 
@@ -80,7 +64,7 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
             //}
             //catch { }
             var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
-            ((MapHandler)Map.Handler).clusterManager?.RemoveItem(point);
+            ((MapHandler)Map.Handler).clusterManager?.RemoveItem((GoogleClusterPin)outerItem.NativeObject);
             return point;
         }
 

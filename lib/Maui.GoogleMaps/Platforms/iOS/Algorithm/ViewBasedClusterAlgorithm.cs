@@ -6,16 +6,11 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
 {
     public class ViewBasedClusterAlgorithm : NonHierarchicalDistanceBasedAlgorithm
     {
-        private int _widthDp;
-        private int _heightDp;
         private readonly MapHandler _handler;
-        private Position? _mapCenter = null;
         private bool _shouldRecluster;
 
-        public ViewBasedClusterAlgorithm(int widthDp, int heightDp, bool shouldReclusterOnMapMovement, IElementHandler handler)
+        public ViewBasedClusterAlgorithm(bool shouldReclusterOnMapMovement, IElementHandler handler): base()
         {
-            _widthDp = widthDp;
-            _heightDp = heightDp;
             _shouldRecluster = shouldReclusterOnMapMovement;
             _handler = (MapHandler)handler;
 
@@ -40,28 +35,22 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
         public override ICluster[] ClustersAtZoom(float zoom)
         {
             var items = base.ClustersAtZoom(zoom);
-            var visibleBounds = GetVisibleBounds(zoom);
+            var visibleBounds = GetVisibleBounds();
             var visibleItems = items.Where(p => CheckPointIsWithinBounds(p.Position, visibleBounds)).ToArray();
             return visibleItems;
         }
 
-        public void updateViewSize(int width, int height)
-        {
-            _widthDp = width;
-            _heightDp = height;
-        }
-
-        public bool shouldReclusterOnMapMovement()
+        public bool ShouldReclusterOnMapMovement()
         {
             return _shouldRecluster;
         }
 
-        public void setShouldReclusterOnMapMovement(bool shouldRecluster)
+        public void SetShouldReclusterOnMapMovement(bool shouldRecluster)
         {
             _shouldRecluster = shouldRecluster;
         }
 
-        private BoundsLocationCoordinate2D GetVisibleBounds(float zoom)
+        private BoundsLocationCoordinate2D GetVisibleBounds()
         {
             if (_handler.VirtualView.Region == null)
             {

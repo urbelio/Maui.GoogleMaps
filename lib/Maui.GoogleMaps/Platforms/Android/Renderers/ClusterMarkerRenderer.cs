@@ -16,7 +16,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
     public class ClusterMarkerRenderer : DefaultClusterRenderer
     {
         private readonly IBitmapDescriptorFactory _bitmapDescriptorFactory;
-        private readonly IElementHandler _handler;
+        private readonly MapHandler _handler;
         private readonly ContentView _noClusterView;
         private readonly ContentView _clusterView;
         private readonly ContentView _labelizedView;
@@ -25,7 +25,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
         public ClusterMarkerRenderer(ContentView labelizedView, ContentView noClusterView, ContentView clusterView, Context context, IElementHandler handler, IBitmapDescriptorFactory bitmapDescriptorFactory, GoogleMap map, ClusterManager clusterManager) : base(context, map, clusterManager)
         {
             _bitmapDescriptorFactory = bitmapDescriptorFactory;
-            _handler = handler;
+            _handler = (MapHandler)handler;
             _noClusterView = noClusterView;
             _clusterView = clusterView;
             _labelizedView = labelizedView;
@@ -37,12 +37,12 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
 
         protected override bool ShouldRender(ICollection oldClusters, ICollection newClusters)
         {
-            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom > 16)
+            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
             {
                 _previousZoom = ((MapHandler)_handler).VirtualView.CameraPosition.Zoom;
                 return true;
             }
-            if (_previousZoom < 16)
+            if (_previousZoom < _handler.VirtualView.ZoomLevelForLabeling)
             {
                 _previousZoom = ((MapHandler)_handler).VirtualView.CameraPosition.Zoom;
                 return true;
@@ -53,7 +53,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
 
         protected override void OnBeforeClusterItemRendered(Java.Lang.Object item, MarkerOptions markerOptions)
         {
-            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom > 17)
+            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
             {
                 var clusterPin = (GoogleClusterPin)item;
                 if (_labelizedView != null)
@@ -65,6 +65,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                     markerOptions.SetIcon(nativeMarker);
                     markerOptions.SetTitle(clusterPin.Title);
                     markerOptions.SetSnippet(clusterPin.Snippet);
+                    markerOptions.InfoWindowAnchor(5000, 5000); 
                 }
             }
             else
@@ -81,6 +82,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                     var clusterPin = (GoogleClusterPin)item;
                     markerOptions.SetTitle(clusterPin.Title);
                     markerOptions.SetSnippet(clusterPin.Snippet);
+                    markerOptions.InfoWindowAnchor(5000, 5000);
                 }
             }
         }
@@ -88,7 +90,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
         protected override void OnClusterItemUpdated(Java.Lang.Object item, Marker marker)
         {
             var clusterPin = (GoogleClusterPin)item;
-            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom > 17)
+            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
             {
                 if (_labelizedView != null)
                 {
@@ -99,6 +101,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                     marker.SetIcon(nativeMarker);
                     marker.Title = clusterPin.Title;
                     marker.Snippet = clusterPin.Snippet;
+                    marker.HideInfoWindow();
                     return;
                 }
             }
@@ -113,6 +116,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                 marker.SetIcon(nativeDescriptor);
                 marker.Title = clusterPin.Title;
                 marker.Snippet = clusterPin.Snippet;
+                marker.HideInfoWindow();
             }
         }
 
@@ -130,6 +134,14 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                     var nativeDescriptor = GetNativeDescriptor(clusterPin);
                     markerOptions.Anchor(0.5f, 0.5f);
                     markerOptions.SetIcon(nativeDescriptor);
+                    markerOptions.InfoWindowAnchor(5000, 5000);
+                    
+                    var title = "";
+                    foreach(var c in cluster.Items)
+                    {
+                        title += $"{((GoogleClusterPin)c).Snippet}-";
+                    }
+                    markerOptions.SetSnippet(title);
                 }
                 catch
                 {
@@ -152,7 +164,14 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                 {
                     var clusterPin = (StaticCluster)cluster;
                     var nativeDescriptor = GetNativeDescriptor(clusterPin);
+                    marker.HideInfoWindow();
                     marker.SetIcon(nativeDescriptor);
+                    var title = "";
+                    foreach (var c in cluster.Items)
+                    {
+                        title += $"{((GoogleClusterPin)c).Snippet}-";
+                    }
+                    marker.Snippet = title;
                 }
                 catch
                 {
@@ -165,6 +184,10 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
 
         protected override bool ShouldRenderAsCluster(ICluster cluster)
         {
+            //if (_handler.VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
+            //{
+            //    return false;
+            //}
             return cluster.Size > 1;
         }
 

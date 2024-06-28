@@ -112,14 +112,6 @@ public partial class MapHandler
 
         if (VirtualView.ClusteringEnabled)
         {
-            //foreach(var l in handler.Logics)
-            //{
-            //    l.Unregister(handler.NativeMap, map);
-            //}
-            //var logic = new ClusterLogic(Config.GetBitmapdescriptionFactory());
-            //handler.Logics.Add(logic);
-            //logic.Register(null, null, handler.NativeMap, handler.Map, handler);
-            //logic.ScaledDensity = handler.ScaledDensity;
 
             var h = DeviceDisplay.Current.MainDisplayInfo.Height;
             var w = DeviceDisplay.Current.MainDisplayInfo.Width;
@@ -127,7 +119,7 @@ public partial class MapHandler
 
             int widthDp = (int)(w / d);
             int heightDp = (int)(h / d);
-            clusterManager = new ClusterManager(Context, NativeMap);
+            clusterManager = new ClusterManager(Context, NativeMap, new CustomMarkerManager(NativeMap, VirtualView));
             clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(widthDp, heightDp));
             clusterManager.Renderer = new ClusterMarkerRenderer(Map.LabelizedView, Map.NoClusterView, Map.ClusterView, Context, this, Config.GetBitmapdescriptionFactory(), NativeMap, clusterManager);
             

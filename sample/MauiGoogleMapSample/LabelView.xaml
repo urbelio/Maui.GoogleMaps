@@ -7,22 +7,22 @@
              WidthRequest="120"
              x:Name="Container">
     <VerticalStackLayout>
-        <Border Stroke="#D0376E"
+        <Border Stroke="#c41000"
                 StrokeThickness="2"
-                BackgroundColor="White"
+                BackgroundColor="#f5d105"
                 Padding="5">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="5"/>
             </Border.StrokeShape>
             <Label x:Name="LabelContainer"
                    FontSize="12"
-                   BackgroundColor="White"
+                   BackgroundColor="#f5d105"
                    VerticalOptions="Center"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"/>
         </Border>
-        <Image Source="win_site_logo_pink"
+        <Image Source="flames"
                Aspect="AspectFit"
                HeightRequest="50"
                WidthRequest="50"

@@ -1,12 +1,11 @@
 using Android.Gms.Maps.Model;
 using Android.Gms.Maps;
 using Maui.GoogleMaps.Android;
-using Maui.GoogleMaps.Android.Extensions;
 using Maui.GoogleMaps.Android.Factories;
 using Com.Google.Maps.Android.Clustering;
-using AndroidBitmapDescriptor = Android.Gms.Maps.Model.BitmapDescriptor;
 using Maui.GoogleMaps.Handlers;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Maui.GoogleMaps.Logics.Android;
 
@@ -72,21 +71,13 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
 
     protected override void AddItems(IList newItems)
     {
-        foreach(ClusterPin p in newItems)
-        {
-            CheckCanCreateNativeItem(p);
-            p.PropertyChanged += OnItemPropertyChanged;
-            var nat = CreateNativeItem(p);
-        }
+        base.AddItems(newItems);
         ((MapHandler)Map.Handler).clusterManager?.Cluster();
     }
 
     protected override void RemoveItems(IList oldItems)
     {
-        foreach(ClusterPin p in oldItems)
-        {
-            DeleteNativeItem(p);
-        }
+        base.RemoveItems(oldItems);
         ((MapHandler)Map.Handler).clusterManager?.Cluster();
     }
 
@@ -99,7 +90,9 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
         //}
         //catch { }
         var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
+        
         ((MapHandler)Map.Handler).clusterManager?.AddItem(point);
+        outerItem.NativeObject = point;
         return point;
         //var markerOptions = new MarkerOptions()
         //    .SetPosition(outerItem.Position.ToLatLng())
@@ -143,8 +136,8 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
         //    nativeDescriptor = _bitmapDescriptorFactory.ToNative(outerItem.GetIcon(), Handler.MauiContext);
         //}
         //catch { }
-        var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
-        ((MapHandler)Map.Handler).clusterManager?.RemoveItem(point);
+        //var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
+        ((MapHandler)Map.Handler).clusterManager?.RemoveItem((GoogleClusterPin)outerItem.NativeObject);
         //_onMarkerDeleting(outerItem, marker);
         //marker.Remove();
         //outerItem.NativeObject = null;
@@ -155,8 +148,8 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
         //}
 
         //_onMarkerDeleted(outerItem, marker);
-        //return marker;
-        return point;
+        return (GoogleClusterPin)outerItem.NativeObject;
+        //return point;
     }
 
     private ClusterPin LookupPin(GoogleClusterPin marker)
@@ -166,6 +159,7 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
 
     private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
     {
+        Debug.WriteLine("************OnInfoWindowClick***************");
         // lookup pin
         //var targetPin = LookupPin(e.Marker);
 
@@ -181,6 +175,8 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
 
     private void OnInfoWindowLongClick(object sender, GoogleMap.InfoWindowLongClickEventArgs e)
     {
+
+        Debug.WriteLine("************OnInfoWindowLongClick***************");
         // lookup pin
         //var targetPin = LookupPin(e.Marker);
 
@@ -194,6 +190,7 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
 
     private void OnMakerClick(object sender, GoogleMap.MarkerClickEventArgs e)
     {
+        Debug.WriteLine("************OnMakerClick***************");
         //// lookup pin
         //var targetPin = LookupPin(e.Marker);
 
@@ -223,6 +220,7 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
 
     private void OnInfoWindowClose(object sender, GoogleMap.InfoWindowCloseEventArgs e)
     {
+        Debug.WriteLine("************OnInfoWindowClose***************");
         //// lookup pin
         //var targetPin = LookupPin(e.Marker);
 
@@ -277,9 +275,9 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
     {
         if (propertyName == Map.SelectedPinProperty.PropertyName)
         {
-            if (!_onMarkerEvent)
-                UpdateSelectedPin(Map.SelectedCluster);
-            Map.SendSelectedClusterChanged(Map.SelectedCluster);
+            //if (!_onMarkerEvent)
+            //    UpdateSelectedPin(Map.SelectedCluster);
+            //Map.SendSelectedClusterChanged(Map.SelectedCluster);
         }
     }
 

@@ -1,6 +1,5 @@
 ﻿using Android.Runtime;
 using Com.Google.Maps.Android.Clustering.Algo;
-using Maui.GoogleMaps.Logics.Android;
 
 namespace Maui.GoogleMaps.Platforms.Android.Algorithm
 {
@@ -16,13 +15,6 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
         {
             return true;
         }
-    }
-
-    public class QuadItemExposed
-    {
-        public Position Position { get; set; }
-
-        public List<GoogleClusterPin> Items { get; set; }
     }
 }
 

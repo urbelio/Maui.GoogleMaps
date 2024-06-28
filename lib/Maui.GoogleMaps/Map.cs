@@ -5,6 +5,7 @@ using Maui.GoogleMaps.Internals;
 using Maui.GoogleMaps.Helpers;
 using Maui.GoogleMaps.Extensions;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Maui.GoogleMaps;
 
@@ -27,8 +28,6 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     public static readonly BindableProperty SelectedPinProperty = BindableProperty.Create(nameof(SelectedPin), typeof(Pin), typeof(Map), default(Pin), defaultBindingMode: BindingMode.TwoWay);
 
-    public static readonly BindableProperty SelectedClusterProperty = BindableProperty.Create(nameof(SelectedCluster), typeof(ClusterPin), typeof(Map), default(ClusterPin), defaultBindingMode: BindingMode.TwoWay);
-
     public static readonly BindableProperty IsTrafficEnabledProperty = BindableProperty.Create(nameof(IsTrafficEnabled), typeof(bool), typeof(Map), false);
 
     public static readonly BindableProperty IsIndoorEnabledProperty = BindableProperty.Create(nameof(IsIndoorEnabled), typeof(bool), typeof(Map), true);
@@ -37,6 +36,8 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     public static readonly BindableProperty NoClusterViewProperty = BindableProperty.Create(nameof(NoClusterView), typeof(ContentView), typeof(Map), null);
 
+    public static readonly BindableProperty ZoomLevelForLabelingProperty = BindableProperty.Create(nameof(ZoomLevelForLabeling), typeof(int), typeof(Map), 17);
+
     public static readonly BindableProperty LabelizedViewProperty = BindableProperty.Create(nameof(LabelizedView), typeof(ContentView), typeof(Map), null);
 
     public static readonly BindableProperty InitialCameraUpdateProperty = BindableProperty.Create(
@@ -44,10 +45,18 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         typeof(CameraUpdate),
         typeof(Map),
         CameraUpdateFactory.NewPositionZoom(new Position(41.89, 12.49), 10),  // center on Rome by default
-        propertyChanged: (bindable, oldValue, newValue) => 
+        propertyChanged: (bindable, oldValue, newValue) =>
         {
             ((Map)bindable)._useMoveToRegisonAsInitialBounds = false;
         });
+
+    public static readonly BindableProperty SelectedClusterProperty = BindableProperty.Create(
+        nameof(SelectedCluster),
+        typeof(ClusterPin),
+        typeof(Map),
+        default(ClusterPin),
+        defaultBindingMode: BindingMode.TwoWay,
+        propertyChanged: OnSelectedClusterPropertyChanged);
 
     public static readonly BindableProperty PaddingProperty = BindableProperty.Create(nameof(PaddingProperty), typeof(Thickness), typeof(Map), default(Thickness));
 
@@ -58,13 +67,13 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     public static readonly BindableProperty MapStyleProperty = BindableProperty.Create(nameof(MapStyle), typeof(MapStyle), typeof(Map), null);
 
-    readonly ObservableCollection<Pin> _pins = new ObservableCollection<Pin>();
-    readonly ObservableCollection<ClusterPin> _clusters = new ObservableCollection<ClusterPin>();
-    readonly ObservableCollection<Polyline> _polylines = new ObservableCollection<Polyline>();
-    readonly ObservableCollection<Polygon> _polygons = new ObservableCollection<Polygon>();
-    readonly ObservableCollection<Circle> _circles = new ObservableCollection<Circle>();
-    readonly ObservableCollection<TileLayer> _tileLayers = new ObservableCollection<TileLayer>();
-    readonly ObservableCollection<GroundOverlay> _groundOverlays = new ObservableCollection<GroundOverlay>();
+    readonly ObservableCollection<Pin> _pins = new();
+    readonly RangeEnabledObservableCollection<ClusterPin> _clusters = new();
+    readonly ObservableCollection<Polyline> _polylines = new();
+    readonly ObservableCollection<Polygon> _polygons = new();
+    readonly ObservableCollection<Circle> _circles = new();
+    readonly ObservableCollection<TileLayer> _tileLayers = new();
+    readonly ObservableCollection<GroundOverlay> _groundOverlays = new();
 
     public event EventHandler<PinClickedEventArgs> PinClicked;
     public event EventHandler<ClusterClickedEventArgs> ClusterClicked;
@@ -94,7 +103,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     internal Action<CameraUpdateMessage> OnAnimateCamera { get; set; }
 
-    internal Action<TakeSnapshotMessage> OnSnapshot{ get; set; }
+    internal Action<TakeSnapshotMessage> OnSnapshot { get; set; }
 
     internal Func<Point, Position> OnFromScreenLocation { get; set; }
     internal Func<Position, Point> OnToScreenLocation { get; set; }
@@ -116,8 +125,8 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     public bool IsIndoorEnabled
     {
-        get { return (bool) GetValue(IsIndoorEnabledProperty); }
-        set { SetValue(IsIndoorEnabledProperty, value);}
+        get { return (bool)GetValue(IsIndoorEnabledProperty); }
+        set { SetValue(IsIndoorEnabledProperty, value); }
     }
 
     public bool MyLocationEnabled
@@ -203,6 +212,12 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
     {
         get { return (ContentView)GetValue(NoClusterViewProperty); }
         set { SetValue(NoClusterViewProperty, value); }
+    }
+
+    public int ZoomLevelForLabeling
+    {
+        get { return (int)GetValue(ZoomLevelForLabelingProperty); }
+        set { SetValue(ZoomLevelForLabelingProperty, value); }
     }
 
     public ContentView LabelizedView
@@ -317,7 +332,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         var comp = new TaskCompletionSource<AnimationStatus>();
 
         SendMoveCamera(new CameraUpdateMessage(cameraUpdate, null, new DelegateAnimationCallback(
-            () => comp.SetResult(AnimationStatus.Finished), 
+            () => comp.SetResult(AnimationStatus.Finished),
             () => comp.SetResult(AnimationStatus.Canceled))));
 
         return comp.Task;
@@ -338,7 +353,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
     {
         var comp = new TaskCompletionSource<Stream>();
 
-        SendTakeSnapshot(new TakeSnapshotMessage(image => comp.SetResult(image)));
+        SendTakeSnapshot(new TakeSnapshotMessage(comp.SetResult));
 
         return comp.Task;
     }
@@ -359,6 +374,18 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         CreatePinItems();
     }
 
+    private static void OnSelectedClusterPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        var control = (Map)bindable;
+        if (newValue == null)
+            return;
+        var ids = ((ClusterPin)newValue).Snippet;
+        var list = ids.Split("-").ToList();
+        list.Remove("");
+        control.SendClusterClicked(list, (ClusterPin)newValue);
+        control.SelectedCluster = null;
+    }
+
     internal bool SendPinClicked(Pin pin)
     {
         var args = new PinClickedEventArgs(pin);
@@ -366,9 +393,9 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         return args.Handled;
     }
 
-    internal bool SendClusterClicked(ClusterPin pin)
+    internal bool SendClusterClicked(List<string> ids, ClusterPin cluster)
     {
-        var args = new ClusterClickedEventArgs(pin);
+        var args = new ClusterClickedEventArgs(ids, cluster);
         ClusterClicked?.Invoke(this, args);
         return args.Handled;
     }
@@ -511,7 +538,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
                 {
                     if (ClusteringEnabled)
                     {
-                        AddClusterPin((ClusterPin)item);
+                        AddClusterPin(item);
                     }
                     else
                     {
@@ -558,12 +585,12 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
                 {
                     foreach (object item in e.OldItems)
                     {
-                        RemoveClusterPin((ClusterPin)item);
+                        RemoveClusterPin(item);
                     }
 
                     foreach (object item in e.NewItems)
                     {
-                        AddClusterPin((ClusterPin)item);
+                        AddClusterPin(item);
                     }
                 }
                 else
@@ -598,10 +625,18 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     void AddAllClusterPins()
     {
-        foreach (ClusterPin item in ItemsSource)
+        //#if IOS
+        try
         {
-            AddClusterPin(item);
+            _clusters.InsertRange((IEnumerable<ClusterPin>)ItemsSource);
         }
+        catch { }
+        //#else
+        //        foreach (object item in ItemsSource)
+        //        {
+        //            AddClusterPin(item);
+        //        }
+        //#endif
     }
 
     void CreatePinItems()
@@ -617,7 +652,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         }
     }
 
-    void AddClusterPin(ClusterPin item)
+    void AddClusterPin(object item)
     {
         _clusters.Add((ClusterPin)item);
     }
@@ -640,9 +675,9 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         _pins.Add(pin);
     }
 
-    void RemoveClusterPin(ClusterPin item)
+    void RemoveClusterPin(object item)
     {
-        _clusters.Remove(item);
+        _clusters.Remove((ClusterPin)item);
     }
 
     void RemovePin(object itemToRemove)

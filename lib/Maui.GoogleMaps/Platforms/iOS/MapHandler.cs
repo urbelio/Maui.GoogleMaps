@@ -54,6 +54,17 @@ namespace Maui.GoogleMaps.Handlers
         {
             if (VirtualView.ClusteringEnabled)
             {
+                NativeMap.TappedMarker = (map, marker) =>
+                {
+                    VirtualView.SelectedCluster = new ClusterPin
+                    {
+                        Title = marker.Title,
+                        Snippet = marker.Snippet,
+                        Position = new Position(marker.Position.Latitude, marker.Position.Longitude),
+                        NativeObject = marker
+                    };
+                    return false;
+                };
                 var h = DeviceDisplay.Current.MainDisplayInfo.Height;
                 var w = DeviceDisplay.Current.MainDisplayInfo.Width;
                 var d = DeviceDisplay.Current.MainDisplayInfo.Density;
@@ -63,11 +74,11 @@ namespace Maui.GoogleMaps.Handlers
 
                 var iconGenerator = new ClusterMarkerIconGenerator(Config.GetImageFactory(), Map.NoClusterView, Map.ClusterView, this);
                 //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
-                var algorithm = new ViewBasedClusterAlgorithm(widthDp, heightDp, true, this);
+                var algorithm = new ViewBasedClusterAlgorithm(true, this);
                 var renderer = new ClusterMarkerRenderer(this, Config.GetImageFactory(), NativeMap, iconGenerator);
                 clusterManager = new ClusterManager(NativeMap, algorithm: algorithm, renderer: renderer);
 
-                clusterManager.SetMapDelegate(NativeMap.Delegate);
+                //clusterManager.SetMapDelegate(new CustomMapViewDelegate(VirtualView));
             }
 
             Logics = VirtualView.ClusteringEnabled ?
@@ -190,7 +201,7 @@ namespace Maui.GoogleMaps.Handlers
 
                     var iconGenerator = new ClusterMarkerIconGenerator(Config.GetImageFactory(), handler.Map.NoClusterView, handler.Map.ClusterView, handler);
                     //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
-                    var algorithm = new ViewBasedClusterAlgorithm(widthDp, heightDp, true, handler);
+                    var algorithm = new ViewBasedClusterAlgorithm(true, handler);
                     var renderer = new ClusterMarkerRenderer(handler, Config.GetImageFactory(), handler.NativeMap, iconGenerator);
                     handler.clusterManager = new ClusterManager(handler.NativeMap, algorithm: algorithm, renderer: renderer);
 

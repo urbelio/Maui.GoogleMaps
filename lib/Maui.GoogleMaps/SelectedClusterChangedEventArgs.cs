@@ -2,7 +2,7 @@
 {
     public sealed class SelectedClusterChangedEventArgs : EventArgs
     {
-        public ClusterPin SelectedPin
+        public ClusterPin SelectedCluster
         {
             get;
             private set;
@@ -10,7 +10,7 @@
 
         internal SelectedClusterChangedEventArgs(ClusterPin selectedPin)
         {
-            this.SelectedPin = selectedPin;
+            this.SelectedCluster = selectedPin;
         }
     }
 }

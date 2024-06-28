@@ -51,8 +51,7 @@ namespace Maui.GoogleMaps.Platforms.iOS.Renderers
                 {
                     return base.IconForSize(size);
                 }
-                _noClusterView.HeightRequest = 64;
-                _noClusterView.WidthRequest = 64;
+                ((IClusterView)_noClusterView).ChangeSize(64);
                 var icon = BitmapDescriptorFactory.FromView(() => _noClusterView);
                 try
                 {
@@ -68,13 +67,17 @@ namespace Maui.GoogleMaps.Platforms.iOS.Renderers
 
         private static int GetSizeByCount(int count)
         {
-            if (count < 101)
+            if (count < 100)
             {
-                return 56;
+                return 40;
+            }
+            else if (count < 1000)
+            {
+                return 48;
             }
             else
             {
-                return 64;
+                return 56;
             }
         }
 

@@ -10,14 +10,14 @@ namespace MauiGoogleMapSample
 {
     public partial class PinItemsSourcePage : ContentPage
     {
-        public static readonly Position startPosition = new Position(39.8283459, -98.5794797);
+        public static readonly Position startPosition = new Position(41.89, 12.49);
 
         public PinItemsSourcePage()
         {
             InitializeComponent();
             
             BindingContext = new ViewModel();
-            _map.InitialCameraUpdate = CameraUpdateFactory.NewPositionZoom(startPosition, 3);
+            _map.InitialCameraUpdate = CameraUpdateFactory.NewPositionZoom(startPosition, 5);
         }
     }
     class ViewModel

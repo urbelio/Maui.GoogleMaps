@@ -2,15 +2,15 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiGoogleMapSample.NoClusterView"
-             HeightRequest="40"
-             WidthRequest="28">
+             HeightRequest="48"
+             WidthRequest="48">
     <Grid>
         <Image 
-            Source="win_site_logo_pink"
+            Source="flames"
             Aspect="AspectFit" 
             HorizontalOptions="Center"
-            HeightRequest="40"
-            WidthRequest="28"/>
+            HeightRequest="48"
+            WidthRequest="48"/>
     </Grid>
 </ContentView>
 

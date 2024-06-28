@@ -3,11 +3,13 @@
     public sealed class ClusterClickedEventArgs : EventArgs
     {
         public bool Handled { get; set; } = false;
+        public List<string> Ids { get; }
         public ClusterPin Cluster { get; }
 
-        internal ClusterClickedEventArgs(ClusterPin cluster)
+        internal ClusterClickedEventArgs(List<string> ids, ClusterPin cluster)
         {
-            this.Cluster = cluster;
+            Ids = ids;
+            Cluster = cluster;
         }
     }
 }
