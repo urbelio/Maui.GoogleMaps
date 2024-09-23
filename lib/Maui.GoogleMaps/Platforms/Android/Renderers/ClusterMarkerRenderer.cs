@@ -37,35 +37,37 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
 
         protected override bool ShouldRender(ICollection oldClusters, ICollection newClusters)
         {
-            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
+            if (_handler.VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
             {
-                _previousZoom = ((MapHandler)_handler).VirtualView.CameraPosition.Zoom;
+                _previousZoom = _handler.VirtualView.CameraPosition.Zoom;
                 return true;
             }
             if (_previousZoom < _handler.VirtualView.ZoomLevelForLabeling)
             {
-                _previousZoom = ((MapHandler)_handler).VirtualView.CameraPosition.Zoom;
+                _previousZoom = _handler.VirtualView.CameraPosition.Zoom;
                 return true;
             }
-            _previousZoom = ((MapHandler)_handler).VirtualView.CameraPosition.Zoom;
+            _previousZoom = _handler.VirtualView.CameraPosition.Zoom;
             return base.ShouldRender(oldClusters, newClusters);
         }
 
-        protected override void OnBeforeClusterItemRendered(Java.Lang.Object item, MarkerOptions markerOptions)
+        protected override async void OnBeforeClusterItemRendered(Java.Lang.Object item, MarkerOptions markerOptions)
         {
-            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
+            var clusterPin = (GoogleClusterPin)item;
+            //await Task.Delay(25);
+            if (_handler.VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
             {
-                var clusterPin = (GoogleClusterPin)item;
                 if (_labelizedView != null)
                 {
                     var labelizedViewCopy = ((IClusterView)_labelizedView).Instance();
                     labelizedViewCopy.ChangeClusterText(clusterPin.Title);
                     var viewBMP = BitmapDescriptorFactory.FromView(() => (ContentView)labelizedViewCopy);
-                    var nativeMarker = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    using var nativeMarker = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    markerOptions.SetPosition(clusterPin.Position);
                     markerOptions.SetIcon(nativeMarker);
                     markerOptions.SetTitle(clusterPin.Title);
                     markerOptions.SetSnippet(clusterPin.Snippet);
-                    markerOptions.InfoWindowAnchor(5000, 5000); 
+                    markerOptions.InfoWindowAnchor(5000, 5000);
                 }
             }
             else
@@ -76,28 +78,65 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                 }
                 else
                 {
-                    var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
-                    var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
-                    markerOptions.SetIcon(nativeDescriptor);
-                    var clusterPin = (GoogleClusterPin)item;
-                    markerOptions.SetTitle(clusterPin.Title);
-                    markerOptions.SetSnippet(clusterPin.Snippet);
-                    markerOptions.InfoWindowAnchor(5000, 5000);
+                    if (_handler.VirtualView.ClusteringMaxReached && _clusterView != null)
+                    {
+                        var clusterViewCopy = ((IClusterView)_clusterView).Instance();
+                        var count = 0;
+                        var splitted = clusterPin.Snippet.Split("-").ToList();
+                        splitted.Remove("");
+                        count += splitted.Count;
+                        if (count == 1)
+                        {
+                            var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
+                            using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                            markerOptions.SetPosition(clusterPin.Position);
+                            markerOptions.SetIcon(nativeDescriptor);
+                            markerOptions.SetTitle(clusterPin.Title);
+                            markerOptions.SetSnippet(clusterPin.Snippet);
+                            markerOptions.InfoWindowAnchor(5000, 5000);
+                        }
+                        else
+                        {
+                            var size = GetSizeByCount(count);
+                            clusterViewCopy.ChangeClusterText(GetLabelByCount(count));
+                            clusterViewCopy.ChangeSize(size);
+                            var viewBMP = BitmapDescriptorFactory.FromView(() => (ContentView)clusterViewCopy);
+                            using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                            markerOptions.SetPosition(clusterPin.Position);
+                            markerOptions.Anchor(0.5f, 0.5f);
+                            markerOptions.SetIcon(nativeDescriptor);
+                            markerOptions.SetTitle(clusterPin.Title);
+                            markerOptions.SetSnippet(clusterPin.Snippet);
+                            markerOptions.InfoWindowAnchor(5000, 5000);
+                        }
+                    }
+                    else
+                    {
+                        var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
+                        using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                        markerOptions.SetPosition(clusterPin.Position);
+                        markerOptions.SetIcon(nativeDescriptor);
+                        markerOptions.SetTitle(clusterPin.Title);
+                        markerOptions.SetSnippet(clusterPin.Snippet);
+                        markerOptions.InfoWindowAnchor(5000, 5000);
+                    }
                 }
             }
         }
 
-        protected override void OnClusterItemUpdated(Java.Lang.Object item, Marker marker)
+        protected override async void OnClusterItemUpdated(Java.Lang.Object item, Marker marker)
         {
             var clusterPin = (GoogleClusterPin)item;
-            if (((MapHandler)_handler).VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
+            //await Task.Delay(25);
+            if (_handler.VirtualView.CameraPosition.Zoom >= _handler.VirtualView.ZoomLevelForLabeling)
             {
                 if (_labelizedView != null)
                 {
                     var labelizedViewCopy = ((IClusterView)_labelizedView).Instance();
                     labelizedViewCopy.ChangeClusterText(clusterPin.Title);
                     var viewBMP = BitmapDescriptorFactory.FromView(() => (ContentView)labelizedViewCopy);
-                    var nativeMarker = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    using var nativeMarker = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    marker.Position = clusterPin.Position;
                     marker.SetIcon(nativeMarker);
                     marker.Title = clusterPin.Title;
                     marker.Snippet = clusterPin.Snippet;
@@ -111,17 +150,55 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             }
             else
             {
-                var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
-                var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
-                marker.SetIcon(nativeDescriptor);
-                marker.Title = clusterPin.Title;
-                marker.Snippet = clusterPin.Snippet;
-                marker.HideInfoWindow();
+
+                if (_handler.VirtualView.ClusteringMaxReached && _clusterView != null)
+                {
+                    var clusterViewCopy = ((IClusterView)_clusterView).Instance();
+                    var count = 0;
+                    var splitted = clusterPin.Snippet.Split("-").ToList();
+                    splitted.Remove("");
+                    count += splitted.Count;
+                    if (count == 1)
+                    {
+                        var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
+                        using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                        marker.Position = clusterPin.Position;
+                        marker.SetIcon(nativeDescriptor);
+                        marker.Title = clusterPin.Title;
+                        marker.Snippet = clusterPin.Snippet;
+                        marker.HideInfoWindow();
+                    }
+                    else
+                    {
+                        var size = GetSizeByCount(count);
+                        clusterViewCopy.ChangeClusterText(GetLabelByCount(count));
+                        clusterViewCopy.ChangeSize(size);
+                        var viewBMP = BitmapDescriptorFactory.FromView(() => (ContentView)clusterViewCopy);
+                        using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                        marker.Position = clusterPin.Position;
+                        marker.SetIcon(nativeDescriptor);
+                        marker.Title = clusterPin.Title;
+                        marker.Snippet = clusterPin.Snippet;
+                        marker.HideInfoWindow();
+                    }
+                }
+                else
+                {
+                    var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
+                    using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    marker.Position = clusterPin.Position;
+                    marker.SetIcon(nativeDescriptor);
+                    marker.Title = clusterPin.Title;
+                    marker.Snippet = clusterPin.Snippet;
+                    marker.HideInfoWindow();
+                }
             }
         }
 
-        protected override void OnBeforeClusterRendered(ICluster cluster, MarkerOptions markerOptions)
+        protected override async void OnBeforeClusterRendered(ICluster cluster, MarkerOptions markerOptions)
         {
+            var clusterPin = (StaticCluster)cluster;
+            //await Task.Delay(25);
             if (_clusterView == null)
             {
                 base.OnBeforeClusterRendered(cluster, markerOptions);
@@ -130,14 +207,14 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             {
                 try
                 {
-                    var clusterPin = (StaticCluster)cluster;
                     var nativeDescriptor = GetNativeDescriptor(clusterPin);
+                    markerOptions.SetPosition(clusterPin.Position);
                     markerOptions.Anchor(0.5f, 0.5f);
                     markerOptions.SetIcon(nativeDescriptor);
                     markerOptions.InfoWindowAnchor(5000, 5000);
-                    
+
                     var title = "";
-                    foreach(var c in cluster.Items)
+                    foreach (var c in cluster.Items)
                     {
                         title += $"{((GoogleClusterPin)c).Snippet}-";
                     }
@@ -146,14 +223,16 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                 catch
                 {
                     var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
-                    var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
                     markerOptions.SetIcon(nativeDescriptor);
                 }
             }
         }
 
-        protected override void OnClusterUpdated(ICluster cluster, Marker marker)
+        protected override async void OnClusterUpdated(ICluster cluster, Marker marker)
         {
+            var clusterPin = (StaticCluster)cluster;
+            //await Task.Delay(25);
             if (_clusterView == null)
             {
                 base.OnClusterUpdated(cluster, marker);
@@ -162,8 +241,8 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             {
                 try
                 {
-                    var clusterPin = (StaticCluster)cluster;
                     var nativeDescriptor = GetNativeDescriptor(clusterPin);
+                    marker.Position = clusterPin.Position;
                     marker.HideInfoWindow();
                     marker.SetIcon(nativeDescriptor);
                     var title = "";
@@ -176,7 +255,8 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
                 catch
                 {
                     var viewBMP = BitmapDescriptorFactory.FromView(() => _noClusterView.Content);
-                    var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    using var nativeDescriptor = _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
+                    marker.Position = clusterPin.Position;
                     marker.SetIcon(nativeDescriptor);
                 }
             }
@@ -193,10 +273,26 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
 
         private global::Android.Gms.Maps.Model.BitmapDescriptor GetNativeDescriptor(StaticCluster clusterPin)
         {
-            var size = GetSizeByCount(clusterPin.Size);
             var clusterViewCopy = ((IClusterView)_clusterView).Instance();
-            clusterViewCopy.ChangeClusterText(GetLabelByCount(clusterPin.Size));
-            clusterViewCopy.ChangeSize(size);
+            if (_handler.VirtualView.ClusteringMaxReached)
+            {
+                var count = 0;
+                foreach (GoogleClusterPin c in clusterPin.Items)
+                {
+                    var splitted = c.Snippet.Split("-").ToList();
+                    splitted.Remove("");
+                    count += splitted.Count;
+                }
+                var size = GetSizeByCount(count);
+                clusterViewCopy.ChangeClusterText(GetLabelByCount(count));
+                clusterViewCopy.ChangeSize(size);
+            }
+            else
+            {
+                var size = GetSizeByCount(clusterPin.Size);
+                clusterViewCopy.ChangeClusterText(GetLabelByCount(clusterPin.Size));
+                clusterViewCopy.ChangeSize(size);
+            }
             var viewBMP = BitmapDescriptorFactory.FromView(() => (ContentView)clusterViewCopy);
             return _bitmapDescriptorFactory.ToNative(viewBMP, _handler.MauiContext);
         }
@@ -215,7 +311,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             {
                 return 40;
             }
-            else if (count > 999 && count < 10000)
+            else if (count > 999 && count < 5000)
             {
                 return 44;
             }
@@ -251,9 +347,13 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             {
                 return "500+";
             }
-            else
+            else if (count > 1000 && count < 5001)
             {
                 return "1000+";
+            }
+            else
+            {
+                return "5000+";
             }
         }
     }

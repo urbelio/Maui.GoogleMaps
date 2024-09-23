@@ -137,7 +137,18 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
         //}
         //catch { }
         //var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
-        ((MapHandler)Map.Handler).clusterManager?.RemoveItem((GoogleClusterPin)outerItem.NativeObject);
+        if (((GoogleClusterPin)outerItem.NativeObject).Position == null)
+        {
+            return null;
+        }
+        //((MapHandler)Map.Handler).clusterManager?.RemoveItem((GoogleClusterPin)outerItem.NativeObject);
+
+        //if (((MapHandler)Map.Handler).clusterManager.Algorithm.Items.Count > 0)
+        //{
+        //    Debug.WriteLine("..........................DeleteNativeItem puntos en DefaultClusterLogic<GoogleClusterPin, GoogleMap>.......................");
+        //    ((MapHandler)Map.Handler).clusterManager?.ClearItems();
+        //}
+        ((MapHandler)Map.Handler).clusterManager?.ClearItems();
         //_onMarkerDeleting(outerItem, marker);
         //marker.Remove();
         //outerItem.NativeObject = null;
@@ -148,7 +159,8 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
         //}
 
         //_onMarkerDeleted(outerItem, marker);
-        return (GoogleClusterPin)outerItem.NativeObject;
+        //return (GoogleClusterPin)outerItem.NativeObject;
+        return null;
         //return point;
     }
 

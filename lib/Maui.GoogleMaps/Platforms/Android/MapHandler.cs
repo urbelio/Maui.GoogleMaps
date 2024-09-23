@@ -119,8 +119,8 @@ public partial class MapHandler
 
             int widthDp = (int)(w / d);
             int heightDp = (int)(h / d);
-            clusterManager = new ClusterManager(Context, NativeMap, new CustomMarkerManager(NativeMap, VirtualView));
-            clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(widthDp, heightDp));
+            clusterManager = new CustomClusterManager(Context, NativeMap, new CustomMarkerManager(NativeMap, VirtualView));
+            clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(this, widthDp, heightDp));
             clusterManager.Renderer = new ClusterMarkerRenderer(Map.LabelizedView, Map.NoClusterView, Map.ClusterView, Context, this, Config.GetBitmapdescriptionFactory(), NativeMap, clusterManager);
             
         }
@@ -277,7 +277,7 @@ public partial class MapHandler
 
                 int widthDp = (int)(w / d);
                 int heightDp = (int)(h / d);
-                handler.clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(widthDp, heightDp));
+                handler.clusterManager.SetAlgorithm(new NonHierarchicalViewBasedAlgorithmExtended(handler, widthDp, heightDp));
                 handler.clusterManager.Renderer = new ClusterMarkerRenderer(handler.Map.LabelizedView, handler.Map.NoClusterView, handler.Map.ClusterView, handler.Context, handler, Config.GetBitmapdescriptionFactory(), handler.NativeMap, handler.clusterManager);
                 handler.NativeMap.SetOnCameraIdleListener(handler.clusterManager);
             }
@@ -411,9 +411,11 @@ public partial class MapHandler
         );
 #pragma warning restore 618
         VirtualView.Region = projection.VisibleRegion.ToRegion();
-        //if (VirtualView.ClusteringEnabled)
-        //{
-        //    clusterManager.Cluster();
-        //}
+        //var opt = new PolygonOptions();
+        //opt.Points.Add(projection.VisibleRegion.FarLeft);
+        //opt.Points.Add(projection.VisibleRegion.FarRight);
+        //opt.Points.Add(projection.VisibleRegion.NearLeft);
+        //opt.Points.Add(projection.VisibleRegion.NearRight);
+        //NativeMap.AddPolygon(opt);
     }
 }

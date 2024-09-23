@@ -19,14 +19,21 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
 
         public override bool OnMarkerClick(Marker marker)
         {
-            _virtualView.SelectedCluster = new ClusterPin
+            if (_virtualView.ClusteringEnabled)
             {
-                Title = marker.Title,
-                Snippet = marker.Snippet,
-                Position = new Position(marker.Position.Latitude, marker.Position.Longitude),
-                NativeObject = marker
-            };
-            return base.OnMarkerClick(marker);
+                _virtualView.SelectedCluster = new ClusterPin
+                {
+                    Title = marker.Title,
+                    Snippet = marker.Snippet,
+                    Position = new Position(marker.Position.Latitude, marker.Position.Longitude),
+                    NativeObject = marker
+                };
+                return false;
+            }
+            else
+            {
+                return base.OnMarkerClick(marker);
+            }
         }
     }
 }

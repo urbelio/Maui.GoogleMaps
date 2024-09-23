@@ -65,16 +65,10 @@ namespace Maui.GoogleMaps.Handlers
                     };
                     return false;
                 };
-                var h = DeviceDisplay.Current.MainDisplayInfo.Height;
-                var w = DeviceDisplay.Current.MainDisplayInfo.Width;
-                var d = DeviceDisplay.Current.MainDisplayInfo.Density;
-
-                int widthDp = (int)(w / d);
-                int heightDp = (int)(h / d);
 
                 var iconGenerator = new ClusterMarkerIconGenerator(Config.GetImageFactory(), Map.NoClusterView, Map.ClusterView, this);
                 //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
-                var algorithm = new ViewBasedClusterAlgorithm(true, this);
+                var algorithm = new ViewBasedClusterAlgorithm(this);
                 var renderer = new ClusterMarkerRenderer(this, Config.GetImageFactory(), NativeMap, iconGenerator);
                 clusterManager = new ClusterManager(NativeMap, algorithm: algorithm, renderer: renderer);
 
@@ -196,12 +190,9 @@ namespace Maui.GoogleMaps.Handlers
                     var w = DeviceDisplay.Current.MainDisplayInfo.Width;
                     var d = DeviceDisplay.Current.MainDisplayInfo.Density;
 
-                    int widthDp = (int)(w / d);
-                    int heightDp = (int)(h / d);
-
                     var iconGenerator = new ClusterMarkerIconGenerator(Config.GetImageFactory(), handler.Map.NoClusterView, handler.Map.ClusterView, handler);
                     //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
-                    var algorithm = new ViewBasedClusterAlgorithm(true, handler);
+                    var algorithm = new ViewBasedClusterAlgorithm(handler);
                     var renderer = new ClusterMarkerRenderer(handler, Config.GetImageFactory(), handler.NativeMap, iconGenerator);
                     handler.clusterManager = new ClusterManager(handler.NativeMap, algorithm: algorithm, renderer: renderer);
 

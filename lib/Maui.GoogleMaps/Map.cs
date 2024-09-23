@@ -26,6 +26,8 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     public static readonly BindableProperty ClusteringEnabledProperty = BindableProperty.Create(nameof(ClusteringEnabled), typeof(bool), typeof(Map), default(bool));
 
+    public static readonly BindableProperty ClusteringMaxReachedProperty = BindableProperty.Create(nameof(ClusteringMaxReached), typeof(bool), typeof(Map), default(bool));
+
     public static readonly BindableProperty SelectedPinProperty = BindableProperty.Create(nameof(SelectedPin), typeof(Pin), typeof(Map), default(Pin), defaultBindingMode: BindingMode.TwoWay);
 
     public static readonly BindableProperty IsTrafficEnabledProperty = BindableProperty.Create(nameof(IsTrafficEnabled), typeof(bool), typeof(Map), false);
@@ -89,6 +91,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
     public event EventHandler<MapClickedEventArgs> MapClicked;
     public event EventHandler<MapLongClickedEventArgs> MapLongClicked;
     public event EventHandler<MyLocationButtonClickedEventArgs> MyLocationButtonClicked;
+    public event EventHandler<RegionChangedEventArgs> RegionChanged;
     public event EventHandler MapReady;
 
     [Obsolete("Please use Map.CameraIdled instead of this")]
@@ -141,6 +144,12 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         set { SetValue(ClusteringEnabledProperty, value); }
     }
 
+    public bool ClusteringMaxReached
+    {
+        get { return (bool)GetValue(ClusteringMaxReachedProperty); }
+        set { SetValue(ClusteringMaxReachedProperty, value); }
+    }
+
     public MapType MapType
     {
         get { return (MapType)GetValue(MapTypeProperty); }
@@ -187,7 +196,18 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
     public IEnumerable ItemsSource
     {
         get => (IEnumerable)GetValue(ItemsSourceProperty);
-        set => SetValue(ItemsSourceProperty, value);
+        set
+        {
+            //if (ClusteringEnabled)
+            //{
+            //    ClusteringMaxReached = ((IEnumerable<ClusterPin>)value).Count() > 19000;
+            //    if (ClusteringMaxReached)
+            //    {
+            //        throw new Exception("It has reached the maximum points to render. It must be less than 19000.");
+            //    }
+            //}
+            SetValue(ItemsSourceProperty, value);
+        }
     }
 
     public DataTemplate ItemTemplate
@@ -292,26 +312,12 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
             OnPropertyChanging();
             _region = value;
+            RegionChanged.Invoke(this, new RegionChangedEventArgs(value));
             OnPropertyChanged();
         }
     }
 
     public UiSettings UiSettings { get; } = new UiSettings();
-
-    //IEnumerator IEnumerable.GetEnumerator()
-    //{
-    //    return GetEnumerator();
-    //}
-
-    //IEnumerator IEnumerable.GetEnumerator()
-    //{
-    //    return ((IEnumerable)Pins).GetEnumerator();
-    //}
-
-    //IEnumerator IEnumerable.GetEnumerator()
-    //{
-    //    return ((IEnumerable)Clusters).GetEnumerator();
-    //}
 
     public void MoveToRegion(MapSpan mapSpan, bool animate = true)
     {
@@ -376,8 +382,9 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     private static void OnSelectedClusterPropertyChanged(BindableObject bindable, object oldValue, object newValue)
     {
+        //Check no Custom Views
         var control = (Map)bindable;
-        if (newValue == null)
+        if (newValue == null || !control.ClusteringEnabled)
             return;
         var ids = ((ClusterPin)newValue).Snippet;
         var list = ids.Split("-").ToList();
@@ -503,7 +510,7 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
         if (ClusteringEnabled)
         {
-            _clusters.Clear();
+            Clusters.Clear();
             AddAllClusterPins();
         }
         else
@@ -625,18 +632,13 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     void AddAllClusterPins()
     {
-        //#if IOS
         try
         {
             _clusters.InsertRange((IEnumerable<ClusterPin>)ItemsSource);
         }
-        catch { }
-        //#else
-        //        foreach (object item in ItemsSource)
-        //        {
-        //            AddClusterPin(item);
-        //        }
-        //#endif
+        catch
+        {
+        }
     }
 
     void CreatePinItems()
@@ -654,6 +656,11 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     void AddClusterPin(object item)
     {
+        if (_clusters.Count > 18999)
+        {
+            ClusteringMaxReached = true;
+            throw new Exception("It has reached the maximum points to render. It must be less than 19000.");
+        }
         _clusters.Add((ClusterPin)item);
     }
 
