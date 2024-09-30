@@ -69,6 +69,10 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
 
     public static readonly BindableProperty MapStyleProperty = BindableProperty.Create(nameof(MapStyle), typeof(MapStyle), typeof(Map), null);
 
+    public static readonly BindableProperty MaxZoomProperty = BindableProperty.Create(nameof(MaxZoom), typeof(float), typeof(Map), 22f);
+
+    public static readonly BindableProperty MinZoomProperty = BindableProperty.Create(nameof(MinZoom), typeof(float), typeof(Map), 0f);
+
     readonly ObservableCollection<Pin> _pins = new();
     readonly RangeEnabledObservableCollection<ClusterPin> _clusters = new();
     readonly ObservableCollection<Polyline> _polylines = new();
@@ -193,19 +197,23 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         set { SetValue(MapStyleProperty, value); }
     }
 
+    public float MaxZoom
+    {
+        get { return (float)GetValue(MaxZoomProperty); }
+        set { SetValue(MaxZoomProperty, value); }
+    }
+
+    public float MinZoom
+    {
+        get { return (float)GetValue(MinZoomProperty); }
+        set { SetValue(MinZoomProperty, value); }
+    }
+
     public IEnumerable ItemsSource
     {
         get => (IEnumerable)GetValue(ItemsSourceProperty);
         set
         {
-            //if (ClusteringEnabled)
-            //{
-            //    ClusteringMaxReached = ((IEnumerable<ClusterPin>)value).Count() > 19000;
-            //    if (ClusteringMaxReached)
-            //    {
-            //        throw new Exception("It has reached the maximum points to render. It must be less than 19000.");
-            //    }
-            //}
             SetValue(ItemsSourceProperty, value);
         }
     }

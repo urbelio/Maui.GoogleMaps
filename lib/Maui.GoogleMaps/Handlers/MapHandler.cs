@@ -21,6 +21,8 @@ public partial class MapHandler : ViewHandler<Map, MapView>
         [nameof(IMap.MyLocationEnabled)] = MapMyLocationEnabled,
         [nameof(IMap.MapStyle)] = MapMapStyle,
         [nameof(IMap.SelectedPin)] = MapSelectedPin,
+        [nameof(IMap.MaxZoom)] = MapMaxZoom,
+        [nameof(IMap.MinZoom)] = MapMinZoom,
 #endif
     };
 

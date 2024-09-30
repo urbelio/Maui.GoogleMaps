@@ -11,5 +11,7 @@ namespace Maui.GoogleMaps
         public MapStyle MapStyle { get; set; }
         public Pin SelectedPin { get; set; }
         public ClusterPin SelectedCluster { get; set; }
+        public float MaxZoom { get; set; }
+        public float MinZoom { get; set; }
     }
 }

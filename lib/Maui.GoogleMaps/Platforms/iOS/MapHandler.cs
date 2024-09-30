@@ -144,7 +144,27 @@ namespace Maui.GoogleMaps.Handlers
 
             base.DisconnectHandler(platformView);
         }
-        
+
+        public static void MapMaxZoom(MapHandler handler, Map map)
+        {
+            var nativeMap = handler.NativeMap;
+            if (nativeMap == null)
+            {
+                return;
+            }
+            nativeMap.SetMinMaxZoom(map.MinZoom, map.MaxZoom);
+        }
+
+        public static void MapMinZoom(MapHandler handler, Map map)
+        {
+            var nativeMap = handler.NativeMap;
+            if (nativeMap == null)
+            {
+                return;
+            }
+            nativeMap.SetMinMaxZoom(map.MinZoom, map.MaxZoom);
+        }
+
         public static void MapMapType(MapHandler handler, Map map)
         {
             handler.NativeMap.MapType = map.MapType switch

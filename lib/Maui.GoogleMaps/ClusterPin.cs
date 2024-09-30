@@ -50,7 +50,7 @@
                 return true;
             if (obj.GetType() != GetType())
                 return false;
-            return Equals((Pin)obj);
+            return Equals((ClusterPin)obj);
         }
 
         public override int GetHashCode()

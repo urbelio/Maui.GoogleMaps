@@ -225,6 +225,26 @@ public partial class MapHandler
         };
     }
 
+    public static void MapMaxZoom(MapHandler handler, Map map)
+    {
+        var nativeMap = handler.NativeMap;
+        if (nativeMap == null)
+        {
+            return;
+        }
+        handler.NativeMap.SetMaxZoomPreference(map.MaxZoom);
+    }
+
+    public static void MapMinZoom(MapHandler handler, Map map)
+    {
+        var nativeMap = handler.NativeMap;
+        if (nativeMap == null)
+        {
+            return;
+        }
+        handler.NativeMap.SetMinZoomPreference(map.MinZoom);
+    }
+
     public static void MapPadding(MapHandler handler, Map map)
     {
         var density = handler.ScaledDensity;
