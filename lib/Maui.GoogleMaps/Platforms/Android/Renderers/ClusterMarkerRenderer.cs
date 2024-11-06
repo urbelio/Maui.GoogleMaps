@@ -1,15 +1,15 @@
 ﻿using Android.Content;
 using Android.Gms.Maps;
-using Com.Google.Maps.Android.Clustering;
-using Com.Google.Maps.Android.Clustering.View;
 using Android.Gms.Maps.Model;
 using Android.Runtime;
-using Com.Google.Maps.Android.Clustering.Algo;
 using Maui.GoogleMaps.Android.Factories;
 using Maui.GoogleMaps.Handlers;
 using System.Collections;
 using Maui.GoogleMaps.Logics.Android;
 using Maui.GoogleMaps.Views;
+using Android.Gms.Maps.Utils.Clustering.View;
+using Android.Gms.Maps.Utils.Clustering;
+using Android.Gms.Maps.Utils.Clustering.Algorithm;
 
 namespace Maui.GoogleMaps.Platforms.Android.Renderers
 {
@@ -51,7 +51,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             return base.ShouldRender(oldClusters, newClusters);
         }
 
-        protected override async void OnBeforeClusterItemRendered(Java.Lang.Object item, MarkerOptions markerOptions)
+        protected override void OnBeforeClusterItemRendered(Java.Lang.Object item, MarkerOptions markerOptions)
         {
             var clusterPin = (GoogleClusterPin)item;
             //await Task.Delay(25);
@@ -124,7 +124,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             }
         }
 
-        protected override async void OnClusterItemUpdated(Java.Lang.Object item, Marker marker)
+        protected override void OnClusterItemUpdated(Java.Lang.Object item, Marker marker)
         {
             var clusterPin = (GoogleClusterPin)item;
             //await Task.Delay(25);
@@ -195,7 +195,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             }
         }
 
-        protected override async void OnBeforeClusterRendered(ICluster cluster, MarkerOptions markerOptions)
+        protected override void OnBeforeClusterRendered(ICluster cluster, MarkerOptions markerOptions)
         {
             var clusterPin = (StaticCluster)cluster;
             //await Task.Delay(25);
@@ -229,7 +229,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             }
         }
 
-        protected override async void OnClusterUpdated(ICluster cluster, Marker marker)
+        protected override void OnClusterUpdated(ICluster cluster, Marker marker)
         {
             var clusterPin = (StaticCluster)cluster;
             //await Task.Delay(25);

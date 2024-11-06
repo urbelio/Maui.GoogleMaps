@@ -1,7 +1,7 @@
 ﻿using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
+using Android.Gms.Maps.Utils.Collections;
 using Android.Runtime;
-using Com.Google.Maps.Android.Collections;
 
 namespace Maui.GoogleMaps.Platforms.Android.Renderers
 {

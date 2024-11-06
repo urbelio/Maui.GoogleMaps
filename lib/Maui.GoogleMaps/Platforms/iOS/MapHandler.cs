@@ -6,10 +6,10 @@ using Maui.GoogleMaps.iOS;
 using Maui.GoogleMaps.Logics.iOS;
 using Maui.GoogleMaps.Logics;
 using Maui.GoogleMaps.iOS.Extensions;
-using Google.Maps.Utils;
 using Maui.GoogleMaps.Platforms.iOS.Algorithm;
 using Maui.GoogleMaps.Platforms.iOS.Renderers;
 using Maui.GoogleMaps.Platforms.iOS.Logics;
+using Google.Maps.Utils;
 
 namespace Maui.GoogleMaps.Handlers
 {
@@ -29,7 +29,7 @@ namespace Maui.GoogleMaps.Handlers
 
         private bool _ready;
 
-        public ClusterManager clusterManager;
+        public GMUClusterManager clusterManager;
 
         internal IList<BaseLogic<MapView>> Logics { get; set; }
 
@@ -70,7 +70,7 @@ namespace Maui.GoogleMaps.Handlers
                 //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
                 var algorithm = new ViewBasedClusterAlgorithm(this);
                 var renderer = new ClusterMarkerRenderer(this, Config.GetImageFactory(), NativeMap, iconGenerator);
-                clusterManager = new ClusterManager(NativeMap, algorithm: algorithm, renderer: renderer);
+                clusterManager = new GMUClusterManager(NativeMap, algorithm: algorithm, renderer: renderer);
 
                 //clusterManager.SetMapDelegate(new CustomMapViewDelegate(VirtualView));
             }
@@ -214,7 +214,7 @@ namespace Maui.GoogleMaps.Handlers
                     //var algorithm = new NonHierarchicalDistanceBasedAlgorithm();
                     var algorithm = new ViewBasedClusterAlgorithm(handler);
                     var renderer = new ClusterMarkerRenderer(handler, Config.GetImageFactory(), handler.NativeMap, iconGenerator);
-                    handler.clusterManager = new ClusterManager(handler.NativeMap, algorithm: algorithm, renderer: renderer);
+                    handler.clusterManager = new GMUClusterManager(handler.NativeMap, algorithm: algorithm, renderer: renderer);
 
                     handler.clusterManager.SetMapDelegate(handler.NativeMap.Delegate);
                     //logic.ClusterItems();

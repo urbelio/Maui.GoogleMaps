@@ -5,7 +5,7 @@ using UIKit;
 
 namespace Maui.GoogleMaps.Platforms.iOS.Renderers
 {
-    public class ClusterMarkerIconGenerator : DefaultClusterIconGenerator
+    public class ClusterMarkerIconGenerator : GMUDefaultClusterIconGenerator
     {
         private readonly IImageFactory _imageFactory;
         private readonly IElementHandler _handler;

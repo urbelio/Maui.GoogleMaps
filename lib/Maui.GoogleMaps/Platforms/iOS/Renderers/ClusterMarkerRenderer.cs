@@ -8,17 +8,17 @@ using Maui.GoogleMaps.Views;
 
 namespace Maui.GoogleMaps.Platforms.iOS.Renderers
 {
-    public class ClusterMarkerRenderer : DefaultClusterRenderer
+    public class ClusterMarkerRenderer : GMUDefaultClusterRenderer
     {
         private readonly IImageFactory _imageFactory;
         private readonly MapHandler _handler;
-        public ClusterMarkerRenderer(IElementHandler handler, IImageFactory imageFactory, MapView map, IClusterIconGenerator clusterIconGenerator) : base(map, clusterIconGenerator)
+        public ClusterMarkerRenderer(IElementHandler handler, IImageFactory imageFactory, MapView map, IGMUClusterIconGenerator clusterIconGenerator) : base(map, clusterIconGenerator)
         {
             _imageFactory = imageFactory;
             _handler = (MapHandler)handler;
         }
 
-        public override void RenderClusters(ICluster[] clusters)
+        public override void RenderClusters(IGMUCluster[] clusters)
         {
             base.RenderClusters(clusters);
             var zoom = _handler.VirtualView.CameraPosition.Zoom;
@@ -85,7 +85,7 @@ namespace Maui.GoogleMaps.Platforms.iOS.Renderers
             }
         }
 
-        public override bool ShouldRenderAsCluster(ICluster cluster, float zoom)
+        public override bool ShouldRenderAsCluster(IGMUCluster cluster, float zoom)
         {
             if (_handler.VirtualView.ClusteringEnabled && _handler.VirtualView.LabelizedView != null)
             {

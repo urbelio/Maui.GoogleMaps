@@ -6,9 +6,9 @@ using Google.Maps.Utils;
 
 namespace Maui.GoogleMaps.Platforms.iOS.Renderers
 {
-    public class CustomClusterManager : ClusterManager
+    public class CustomClusterManager : GMUClusterManager
     {
-        public CustomClusterManager(NSObject mapView, IClusterAlgorithm algorithm, IClusterRenderer renderer) : base(mapView, algorithm, renderer)
+        public CustomClusterManager(NSObject mapView, IGMUClusterAlgorithm algorithm, IGMUClusterRenderer renderer) : base((Google.Maps.MapView)mapView, algorithm, renderer)
         {
         }
     }

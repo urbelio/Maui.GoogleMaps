@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using Android.Gms.Maps.Model;
+using Android.Gms.Maps.Utils.Clustering.Algorithm;
 using Android.Runtime;
-using Com.Google.Maps.Android.Clustering.Algo;
 using Maui.GoogleMaps.Handlers;
 using Maui.GoogleMaps.Logics.Android;
 

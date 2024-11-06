@@ -644,8 +644,9 @@ public class Map : View, IMap, IEnumerable<Pin>, IEnumerable<ClusterPin>
         {
             _clusters.InsertRange((IEnumerable<ClusterPin>)ItemsSource);
         }
-        catch
+        catch(Exception exc)
         {
+            Console.WriteLine($"-----> MapError: {exc.Message}");
         }
     }
 

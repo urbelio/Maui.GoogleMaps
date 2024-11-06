@@ -5,11 +5,11 @@ using Maui.GoogleMaps.Handlers;
 
 namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
 {
-    public class ViewBasedClusterAlgorithm : NonHierarchicalDistanceBasedAlgorithm
+    public class ViewBasedClusterAlgorithm : GMUNonHierarchicalDistanceBasedAlgorithm
     {
         private const double EarthRadiusKm = 6371.0;
         private readonly MapHandler _handler;
-        private List<IClusterItem> _clusters = new();
+        private List<IGMUClusterItem> _clusters = new();
 
         public ViewBasedClusterAlgorithm(IElementHandler handler): base(new nuint(80))
         {
@@ -23,7 +23,7 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
             _handler.clusterManager.Cluster();
         }
 
-        public override void AddItems(IClusterItem[] items)
+        public override void AddItems(IGMUClusterItem[] items)
         {
             foreach (var item in items)
             {
@@ -32,13 +32,13 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
             base.AddItems(items);
         }
 
-        public override void RemoveItem(IClusterItem item)
+        public override void RemoveItem(IGMUClusterItem item)
         {
             _clusters.Remove(item);
             base.RemoveItem(item);
         }
 
-        public override ICluster[] ClustersAtZoom(float zoom)
+        public override IGMUCluster[] ClustersAtZoom(float zoom)
         {
             var visibleBounds = GetVisibleBounds();
             var vi = _clusters.Where(p => CheckPointIsWithinBounds(p.Position, visibleBounds)).ToArray();
@@ -81,7 +81,7 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
             return isWithin;
         }
 
-        public static ICluster[] ClusterByMinimumDistance(IClusterItem[] points, double minDistanceKm)
+        public static IGMUCluster[] ClusterByMinimumDistance(IGMUClusterItem[] points, double minDistanceKm)
         {
             List<CustomClusterWrapper> clusters = new();
 
@@ -218,15 +218,15 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
         public CLLocationCoordinate2D SouthEast { get; set; }
     }
 
-    public class CustomClusterWrapper : NSObject, ICluster
+    public class CustomClusterWrapper : NSObject, IGMUCluster
     {
-        public List<IClusterItem> ItemsList { get; set; } = new();
+        public List<IGMUClusterItem> ItemsList { get; set; } = new();
 
         public CLLocationCoordinate2D Position { get; set; }
 
         public nuint Count => nuint.Parse($"{ItemsList.Count}");
 
-        public IClusterItem[] Items => ItemsList.ToArray();
+        public IGMUClusterItem[] Items => ItemsList.ToArray();
     }
 }
 

@@ -26,7 +26,7 @@ internal abstract class DefaultCircleLogic<TNative, TNativeMap> : DefaultLogic<C
 
     protected override void CheckCanCreateNativeItem(Circle outerItem)
     {
-        if (outerItem.Center == null || outerItem?.Radius == null || outerItem.Radius.Meters <= 0f)
+        if (outerItem?.Radius == null || outerItem.Radius.Meters <= 0f)
         {
             throw new ArgumentException("Circle must have a center and radius");
         }

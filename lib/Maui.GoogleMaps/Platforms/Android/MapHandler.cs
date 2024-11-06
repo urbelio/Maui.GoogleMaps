@@ -1,8 +1,8 @@
 ﻿using Android.Gms.Maps;
 using Android.Gms.Maps.Model;
+using Android.Gms.Maps.Utils.Clustering;
 using Android.Graphics;
 using Android.OS;
-using Com.Google.Maps.Android.Clustering;
 using Java.Util.Logging;
 using Maui.GoogleMaps.Android;
 using Maui.GoogleMaps.Android.Callbacks;

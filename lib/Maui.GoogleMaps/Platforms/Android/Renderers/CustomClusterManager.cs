@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using Android.Content;
 using Android.Gms.Maps;
-using Com.Google.Maps.Android.Clustering;
-using Com.Google.Maps.Android.Collections;
+using Android.Gms.Maps.Utils.Clustering;
+using Android.Gms.Maps.Utils.Collections;
 
 namespace Maui.GoogleMaps.Platforms.Android.Renderers
 {

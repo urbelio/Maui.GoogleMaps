@@ -1,9 +1,11 @@
 ﻿using CoreLocation;
+using Foundation;
 using Google.Maps;
 using Google.Maps.Utils;
 using Maui.GoogleMaps.Handlers;
 using Maui.GoogleMaps.iOS.Factories;
 using Maui.GoogleMaps.Logics;
+using ObjCRuntime;
 using System.Collections;
 
 namespace Maui.GoogleMaps.Platforms.iOS.Logics
@@ -80,23 +82,25 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
 
         protected override void OnUpdatePosition(ClusterPin outerItem, GoogleClusterPin nativeItem)
         {
-            nativeItem.PinPosition = new CLLocationCoordinate2D(outerItem.Position.Latitude, outerItem.Position.Longitude);
+            nativeItem.Position = new CLLocationCoordinate2D(outerItem.Position.Latitude, outerItem.Position.Longitude);
         }
     }
 
-    public class GoogleClusterPin : ClusterItem
+    public class GoogleClusterPin : NSObject, IGMUClusterItem
     {
-        public override CLLocationCoordinate2D Position => PinPosition;
+        //public CLLocationCoordinate2D Position => PinPosition;
+        //public string Snippet => PinSnippet;
+        //public string Title => PinTitle;
 
-        public CLLocationCoordinate2D PinPosition { get; set; }
+        public CLLocationCoordinate2D Position { get; set; }
 
         public string Snippet { get; set; }
 
         public string Title { get; set; }
 
-        public GoogleClusterPin(double lat, double lng, string title, string snippet) : base()
+        public GoogleClusterPin(double lat, double lng, string title, string snippet)
         {
-            PinPosition = new CLLocationCoordinate2D(lat, lng);
+            Position = new CLLocationCoordinate2D(lat, lng);
             Snippet = snippet;
             Title = title;
         }
