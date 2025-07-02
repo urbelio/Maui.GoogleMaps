@@ -5,7 +5,6 @@ using Google.Maps.Utils;
 using Maui.GoogleMaps.Handlers;
 using Maui.GoogleMaps.iOS.Factories;
 using Maui.GoogleMaps.Logics;
-using ObjCRuntime;
 using System.Collections;
 
 namespace Maui.GoogleMaps.Platforms.iOS.Logics
@@ -45,12 +44,6 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
 
         protected override GoogleClusterPin CreateNativeItem(ClusterPin outerItem)
         {
-            //UIImage nativeDescriptor = null;
-            //try
-            //{
-            //    nativeDescriptor = _imageFactory.ToUIImage(outerItem.GetIcon(), Handler.MauiContext);
-            //}
-            //catch { }
             var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
             ((MapHandler)Map.Handler).clusterManager?.AddItem(point);
             outerItem.NativeObject = point;
@@ -59,12 +52,6 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
 
         protected override GoogleClusterPin DeleteNativeItem(ClusterPin outerItem)
         {
-            //UIImage nativeDescriptor = null;
-            //try
-            //{
-            //    nativeDescriptor = _imageFactory.ToUIImage(outerItem.GetIcon(), Handler.MauiContext);
-            //}
-            //catch { }
             var point = new GoogleClusterPin(outerItem.GetPosition().Latitude, outerItem.GetPosition().Longitude, outerItem.GetTitle(), outerItem.GetSnippet());
             ((MapHandler)Map.Handler).clusterManager?.RemoveItem((GoogleClusterPin)outerItem.NativeObject);
             return point;
@@ -88,9 +75,6 @@ namespace Maui.GoogleMaps.Platforms.iOS.Logics
 
     public class GoogleClusterPin : NSObject, IGMUClusterItem
     {
-        //public CLLocationCoordinate2D Position => PinPosition;
-        //public string Snippet => PinSnippet;
-        //public string Title => PinTitle;
 
         public CLLocationCoordinate2D Position { get; set; }
 

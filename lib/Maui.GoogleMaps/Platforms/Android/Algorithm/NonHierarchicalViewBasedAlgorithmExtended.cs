@@ -31,13 +31,13 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
 
         public override bool ShouldReclusterOnMapMovement()
         {
-            Debug.WriteLine("..........................Comprobando movimiento en NonHierarchicalViewBasedAlgorithmExtended.......................");
+            Console.WriteLine("..........................Comprobando movimiento en NonHierarchicalViewBasedAlgorithmExtended.......................");
             return true;
         }
 
         public override bool AddItem(Java.Lang.Object item)
         {
-            //Debug.Write("..........................Añadiendo punto en NonHierarchicalViewBasedAlgorithmExtended.......................");
+            //Console.Write("..........................Añadiendo punto en NonHierarchicalViewBasedAlgorithmExtended.......................");
             _clusters.Add((GoogleClusterPin)item);
             return true;
             //var value = base.AddItem(item);
@@ -46,7 +46,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
 
         public override bool AddItems(ICollection items)
         {
-            Debug.WriteLine("..........................Añadiendo puntos en NonHierarchicalViewBasedAlgorithmExtended.......................");
+            Console.WriteLine("..........................Añadiendo puntos en NonHierarchicalViewBasedAlgorithmExtended.......................");
             foreach (var item in items)
             {
                 _clusters.Add((GoogleClusterPin)item);
@@ -60,7 +60,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
         {
             if (_clusters.Count > 0)
             {
-                Debug.WriteLine("..........................Limpiando puntos en NonHierarchicalViewBasedAlgorithmExtended.......................");
+                Console.WriteLine("..........................Limpiando puntos en NonHierarchicalViewBasedAlgorithmExtended.......................");
                 _clusters.Clear();
                 //base.ClearItems();
             }
@@ -71,7 +71,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
             //var clusters = base.GetClusters(zoom);
             //return clusters;
 
-            Debug.WriteLine("..........................Obteniendo puntos en NonHierarchicalViewBasedAlgorithmExtended.......................");
+            Console.WriteLine("..........................Obteniendo puntos en NonHierarchicalViewBasedAlgorithmExtended.......................");
             var visibleBounds = GetVisibleBounds();
             var vi = _clusters.Where(p => CheckPointIsWithinBounds(p.Position, visibleBounds)).ToArray();
             var visibleItems = ClusterByMinimumDistance(vi, GetClusterDistanceByZoom((int)Math.Ceiling(zoom)));
@@ -163,7 +163,8 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
         {
             return zoom switch
             {
-                0 or 1 or 2 or 3 or 4 => 500,
+                0 or 1 or 2 or 3 => 1000,
+                4 => 500,
                 5 => 250,
                 6 => 140,
                 7 => 70,
@@ -177,7 +178,10 @@ namespace Maui.GoogleMaps.Platforms.Android.Algorithm
                 15 => 0.250,
                 16 => 0.100,
                 17 => 0.080,
-                18 or 19 or 20 or 21 => 0.050,
+                18 => 0.050,
+                19 => 0.025,
+                20 => 0.010,
+                21 => 0.000001,
                 _ => throw new ArgumentOutOfRangeException(nameof(zoom), "El nivel de zoom debe estar entre 0 y 21."),
             };
         }

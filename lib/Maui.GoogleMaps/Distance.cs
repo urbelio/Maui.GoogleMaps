@@ -23,7 +23,7 @@ namespace Maui.GoogleMaps
         {
             if (miles < 0)
             {
-                Debug.WriteLine("Negative values for distance not supported");
+                Console.WriteLine("Negative values for distance not supported");
                 miles = 0;
             }
             return new Distance(miles * MetersPerMile);
@@ -33,7 +33,7 @@ namespace Maui.GoogleMaps
         {
             if (meters < 0)
             {
-                Debug.WriteLine("Negative values for distance not supported");
+                Console.WriteLine("Negative values for distance not supported");
                 meters = 0;
             }
             return new Distance(meters);
@@ -43,7 +43,7 @@ namespace Maui.GoogleMaps
         {
             if (kilometers < 0)
             {
-                Debug.WriteLine("Negative values for distance not supported");
+                Console.WriteLine("Negative values for distance not supported");
                 kilometers = 0;
             }
             return new Distance(kilometers * MetersPerKilometer);

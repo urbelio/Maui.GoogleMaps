@@ -98,23 +98,23 @@ internal class ClusterLogic : DefaultClusterLogic<GoogleClusterPin, GoogleMap>
 
     private void OnInfoWindowClick(object sender, GoogleMap.InfoWindowClickEventArgs e)
     {
-        Debug.WriteLine("************OnInfoWindowClick***************");
+        Console.WriteLine("************OnInfoWindowClick***************");
     }
 
     private void OnInfoWindowLongClick(object sender, GoogleMap.InfoWindowLongClickEventArgs e)
     {
 
-        Debug.WriteLine("************OnInfoWindowLongClick***************");
+        Console.WriteLine("************OnInfoWindowLongClick***************");
     }
 
     private void OnMakerClick(object sender, GoogleMap.MarkerClickEventArgs e)
     {
-        Debug.WriteLine("************OnMakerClick***************");
+        Console.WriteLine("************OnMakerClick***************");
     }
 
     private void OnInfoWindowClose(object sender, GoogleMap.InfoWindowCloseEventArgs e)
     {
-        Debug.WriteLine("************OnInfoWindowClose***************");
+        Console.WriteLine("************OnInfoWindowClose***************");
     }
 
     private void OnMarkerDragStart(object sender, GoogleMap.MarkerDragStartEventArgs e)

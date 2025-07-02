@@ -39,7 +39,7 @@ namespace Maui.GoogleMaps.Platforms.Android.Renderers
             }
             catch(Exception exc)
             {
-                Debug.WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!{((IClusterItem)item).Snippet} - {exc.Message}!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!{((IClusterItem)item).Snippet} - {exc.Message}!!!!!!!!!!!!!!!!!!!!!!!!");
                 return false;
             }
         }

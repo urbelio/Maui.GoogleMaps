@@ -17,7 +17,7 @@ namespace Maui.GoogleMaps
         {
             if (ReferenceEquals(null, obj))
                 return false;
-            if (!(obj is Position) || ReferenceEquals(null, this))
+            if (!(obj is Position) || ReferenceEquals(null, objB: this))
                 return false;
             var other = (Position)obj;
             return Latitude == other.Latitude && Longitude == other.Longitude;

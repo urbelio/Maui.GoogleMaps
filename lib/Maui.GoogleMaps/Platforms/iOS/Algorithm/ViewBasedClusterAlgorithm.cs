@@ -190,9 +190,10 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
         {
             return zoom switch
             {
-                0 or 1 or 2 or 3 or 4 => 500,
-                5 => 200,
-                6 => 100,
+                0 or 1 or 2 or 3 => 1000,
+                4 => 500,
+                5 => 250,
+                6 => 140,
                 7 => 70,
                 8 => 35,
                 9 => 20,
@@ -204,7 +205,10 @@ namespace Maui.GoogleMaps.Platforms.iOS.Algorithm
                 15 => 0.250,
                 16 => 0.100,
                 17 => 0.080,
-                18 or 19 or 20 or 21 => 0.050,
+                18 => 0.050,
+                19 => 0.025,
+                20 => 0.010,
+                21 => 0.000001,
                 _ => throw new ArgumentOutOfRangeException(nameof(zoom), "El nivel de zoom debe estar entre 0 y 21."),
             };
         }
