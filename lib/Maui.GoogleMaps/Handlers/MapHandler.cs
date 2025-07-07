@@ -30,6 +30,11 @@ public partial class MapHandler : ViewHandler<Map, MapView>
     {
     }
 
+    public MapHandler(IPropertyMapper mapper, CommandMapper? commandMapper = null)
+        : base(mapper, commandMapper)
+    {
+    }
+
 #if (NET6_0_OR_GREATER && !IOS && !ANDROID)
     protected override object CreatePlatformView()
     {

@@ -14,7 +14,7 @@ public static class AppHostBuilderExtensions
         )
     {
         appBuilder
-            .ConfigureMauiHandlers(handlers => handlers.AddTransient(typeof(Map), h => new MapHandler()))
+            .ConfigureMauiHandlers(handlers => handlers.AddHandler<Map, MapHandler>())
             .ConfigureLifecycleEvents(events =>
             {
 #if ANDROID
